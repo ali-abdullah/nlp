@@ -26,9 +26,30 @@ def prepare_data(df):
 
 df = prepare_data(df).sample(frac = 1, random_state = 21)
 
+#test_text = prepare_data(df).iloc[82,1]
+#print(test_text)
+
+
+#print(" ")
+#print("-------------------------------")
+#print(" ")
+# # text = text.replace("<br", "")
+# # text = text.replace("<Br", "")
+# test_text = test_text.replace("<br /><br />", " ")
+#test_text = re.sub("(<[^>]*>)", "", test_text)
+
+#print(test_text)
+#test_text = re.sub(r"[^\w\s]", "", test_text)
+#test_text = re.sub(re.compile('<.*re>'), "", test_text)  
+
+   
+# test_text = re.sub(r"\s+", " ", test_text)
+# test_text = test_text.lower()
+
+# #print(test_text)
 
 train = df.iloc[:10000,:]
-test  = df.iloc[20000:20010,:]
+test  = df.iloc[20000:20100,:]
 
 
 
@@ -89,16 +110,45 @@ for i, word_freq in BOW_df.iterrows():
         word_freq['5'] = 0
 
 BOW_df = BOW_df.sort_values(['5'] , ascending=[0])
-positive_words = BOW_df.iloc[:100, 5:5]
+positive_words = BOW_df.iloc[:400, 5:5]
 
 # BOW_df.sort('0',ascending=false)
 BOW_df = BOW_df.sort_values(['1'] , ascending=[0])
-negative_words = BOW_df.iloc[:100, 5:5]
+negative_words = BOW_df.iloc[:400, 5:5]
 # neutral_words = BOW_df.head(50)
 
 # BOW_df.sort('-1',ascending=false)
 # negative_words = BOW_df.head(50)
 
+correct_guesses = 0
+incorrect_guesses = 0
+
+word = "magnesium"
+
+if word in positive_words.index.values:
+    print("checked")
+
+for i, review in test.iterrows():
+    text = review['Text']
+    score = review['Score']
+    tokenized_text = Tokenizer(text)
+    postive_count  = 0
+    negative_count = 0
+    for word in tokenized_text:
+        if word in positive_words.index.values :
+            postive_count  += 1
+        if word in negative_words.index.values:
+            negative_count += 1
+    total = postive_count - negative_count
+    if (total > 0 and score == '4') or (total > 0 and score == '5') or (total < 0 and score == '2') or (total < 0 and score == '1') or (total == 0 and score == '3'):
+        correct_guesses += 1
+    else :
+        incorrect_guesses += 1
+
+score = correct_guesses / (correct_guesses + incorrect_guesses)     
+
+print("Your score is: ")
+print(score)
 
 print(BOW_df)
 print(positive_words)
