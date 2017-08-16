@@ -9,14 +9,11 @@ import re
 BOW_df = pd.DataFrame(columns=['1','2','3','4','5'])
 df = pd.read_csv("Reviews.csv")
 
-#BOW_df.loc['first'] = [0,0,0]
-#BOW_df.loc['first']['1'] +=1
-
 words_set = {'.'}
 
 
+#print(BOW_df.head())
 
-print(BOW_df.head())
 def prepare_data(df):
     # This function should generate the train and test dataframe
     df = df.drop(['Id', 'ProductId', 'UserId', 'ProfileName', 'HelpfulnessNumerator', 'HelpfulnessDenominator','Time', 'Summary'] , axis = 1)
@@ -26,30 +23,9 @@ def prepare_data(df):
 
 df = prepare_data(df).sample(frac = 1, random_state = 21)
 
-#test_text = prepare_data(df).iloc[82,1]
-#print(test_text)
-
-
-#print(" ")
-#print("-------------------------------")
-#print(" ")
-# # text = text.replace("<br", "")
-# # text = text.replace("<Br", "")
-# test_text = test_text.replace("<br /><br />", " ")
-#test_text = re.sub("(<[^>]*>)", "", test_text)
-
-#print(test_text)
-#test_text = re.sub(r"[^\w\s]", "", test_text)
-#test_text = re.sub(re.compile('<.*re>'), "", test_text)  
-
-   
-# test_text = re.sub(r"\s+", " ", test_text)
-# test_text = test_text.lower()
-
-# #print(test_text)
 
 train = df.iloc[:10000,:]
-test  = df.iloc[20000:20100,:]
+test  = df.iloc[20000:20020,:]
 
 
 
@@ -89,7 +65,7 @@ for i, word_freq in BOW_df.iterrows():
     total = word_freq['1'] + word_freq['2'] + word_freq['3'] + word_freq['4'] + word_freq['5']
     #print(total)
     #float(word_freq['1']) / float(total)
-    if (word_freq['1'] > 50) or (word_freq['2'] > 50) or (word_freq['3'] > 50) or (word_freq['4'] > 50) or (word_freq['5'] > 50) :
+    if (word_freq['1'] > 1000) or (word_freq['2'] > 1000) or (word_freq['3'] > 1000) or (word_freq['4'] > 1000) or (word_freq['5'] > 1000) :
         word_freq['1'] = float(word_freq['1']) / float(total)
         word_freq['2'] = float(word_freq['2']) / float(total)
         word_freq['3'] = float(word_freq['3']) / float(total)
@@ -112,25 +88,17 @@ for i, word_freq in BOW_df.iterrows():
 BOW_df = BOW_df.sort_values(['5'] , ascending=[0])
 positive_words = BOW_df.iloc[:400, 5:5]
 
-# BOW_df.sort('0',ascending=false)
 BOW_df = BOW_df.sort_values(['1'] , ascending=[0])
 negative_words = BOW_df.iloc[:400, 5:5]
-# neutral_words = BOW_df.head(50)
-
-# BOW_df.sort('-1',ascending=false)
-# negative_words = BOW_df.head(50)
 
 correct_guesses = 0
 incorrect_guesses = 0
 
-word = "magnesium"
-
-if word in positive_words.index.values:
-    print("checked")
-
 for i, review in test.iterrows():
     text = review['Text']
     score = review['Score']
+    print(text)
+    print(score)
     tokenized_text = Tokenizer(text)
     postive_count  = 0
     negative_count = 0
@@ -140,12 +108,19 @@ for i, review in test.iterrows():
         if word in negative_words.index.values:
             negative_count += 1
     total = postive_count - negative_count
-    if (total > 0 and score == '4') or (total > 0 and score == '5') or (total < 0 and score == '2') or (total < 0 and score == '1') or (total == 0 and score == '3'):
+    print("the total is")
+    print(total)
+    if (total > 0 and score == 4) or (total > 0 and score == 5) or (total < 0 and score == 2) or (total < 0 and score == 1) or (total == 0 and score == 3):
         correct_guesses += 1
     else :
         incorrect_guesses += 1
+        
+print("correct guesses") 
+print(correct_guesses)
+print("incorrect guesses")
+print(incorrect_guesses)
 
-score = correct_guesses / (correct_guesses + incorrect_guesses)     
+score = float(correct_guesses) / float(correct_guesses + incorrect_guesses)     
 
 print("Your score is: ")
 print(score)
