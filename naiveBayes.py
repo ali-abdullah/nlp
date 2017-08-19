@@ -5,11 +5,13 @@ class NaiveBayesText:
 	'''
 		This class has functions that :
 		 train the model 
-		 run it on text inputs and classifies them
-		 checks for scores on given test X and y
+		 takes in text inputs and classifies them
+		 checks for scores on given test X and test y data
 		
 		By default if no input is given it uses 
 		 predefined lists
+
+		currently the input has to be pre-tokenized 
 
 		for training
 		X = [
@@ -50,12 +52,18 @@ class NaiveBayesText:
 		return rf_dict
 
 	def init_nb_dict(self): 
+		
+		#initializes dictionaries with the different categories/class labels as keys
+		
 		nb_dict = {} 
 		for label in self.labels: 
 			nb_dict[label] = {} 
 		return nb_dict
 
 	def max_class_rank(self, class_rankings):
+		
+		# finds the category/class label with the highest probability 
+
 		class_chance = 0
 		class_prediction = 'nothing'
 		for category in class_rankings.keys():
@@ -65,11 +73,22 @@ class NaiveBayesText:
 		return class_prediction
 
 	def laplace_smoothing(self, category):	
+		
+		# laplace +1 smoothing for any words that weren't in the train data
+
 		laplace_value = 1 / (self.vocabulary_count + 1 + self.class_word_count[category])
 		return laplace_value
 
 
 	def train(self, X = words, y = sentiment):
+
+		# takes in tokenized X and and single array y 
+		# and stores the applied formula for each word in nb_dict 
+		#X = [
+		#['words', 'inside', 'a', 'list'],
+		#['they', 'scored', 'four', 'goals']
+		#[....]
+		#Y = ['words','sports', ....] (topics) 
 
 		self.labels = set(y)
 
@@ -80,6 +99,7 @@ class NaiveBayesText:
 		self.nb_dict = self.init_nb_dict() # initializes nb_dict
 
 		self.class_word_count = self.init_nb_dict()
+
 		# final result for nb_dict:
 		# nb_dict = {'positive':{'this': 1, 'is': 1 , ...} , 'negative':{'this': 1, 'will': 1, ...}}
 
@@ -93,6 +113,7 @@ class NaiveBayesText:
 			self.nb_dict[category] = self.relative_frequency_counter(self.word_list)
 	
 	def classify(self, X = test):
+		
 		# The user will pass in a single array or a list of arrays,
 		# we shall then output the prediction as a list
 
@@ -113,6 +134,10 @@ class NaiveBayesText:
 		return predictions
 
 	def score(self, X = test, y = test_y):
+		
+		# tests the trained model against test X and y
+		# outputs the score, correctly classified/ total number of predictions 
+
 		results = self.classify(X)
 		correct_predictions = 0
 		incorrect_predictions = 0
